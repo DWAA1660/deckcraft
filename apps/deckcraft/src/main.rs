@@ -11,6 +11,8 @@
 
 mod audio;
 mod control_server;
+#[cfg(any(target_os = "windows", test))]
+mod graphics;
 
 use deckcraft_engine::Session;
 use deckcraft_ui_egui::{Services, SlideApp};
@@ -164,6 +166,9 @@ fn main() -> eframe::Result {
             b.with_x11();
         }));
     }
+    // Before eframe creates the wgpu instance: default Windows to DirectX 12 only (see graphics.rs).
+    #[cfg(target_os = "windows")]
+    graphics::configure(&mut options, eframe::wgpu::Backends::from_env());
     eframe::run_native(
         "DeckCraft",
         options,
